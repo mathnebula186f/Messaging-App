@@ -9,7 +9,7 @@ const cookieParser= require("cookie-parser");
 const ws=require('ws');
 const Message = require ('./models/Message');
 
-dotenv.config();
+dotenv.config();  
 //console.log(process.env.MONGO_URL);
 mongoose.connect(process.env.MONGO_URL);
 const jwtSecret=process.env.JWT_SECRET;
@@ -47,11 +47,20 @@ app.get('/messages/:userId',async (req,res)=>{
     const {userId}=req.params;
     const userData=await getUserDataFromRequest(req);
     const ourUserId=userData.userId;
-    const messages=await Message.find({
-        sender : {$in:[userId,ourUserId]},
-        recipient : {$in :[userId,ourUserId]},
-    }).sort({createdAt:1}); 
-    res.json(messages);
+    if( userId=="653546af0562f26076aebdbd"){
+        const messages = await Message.find({
+          recipient: userId,
+        }).sort({ createdAt: 1 });
+        res.json(messages);
+    }
+    else{
+        const messages = await Message.find({
+          sender: { $in: [userId, ourUserId] },
+          recipient: { $in: [userId, ourUserId] },
+        }).sort({ createdAt: 1 });
+        res.json(messages);
+    }
+    
 });
 
 
@@ -105,6 +114,22 @@ app.post("/register",async (req,res) => {
         });
     });
 
+});
+
+
+app.get('/ShowAllPeople',async (req,res)=>{
+    try {
+    const allData = await User.find(); // Fetch all data from the MongoDB collection
+    console.log(allData);
+    const people = {};
+    allData.forEach((user) => {
+      people[user._id] = user.username;
+    });
+    console.log("people=",people);
+    res.json(people);
+  } catch (err) {
+    res.status(500).json({ error: "Could not fetch data" });
+  }
 });
 
 const server=app.listen(4000);

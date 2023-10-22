@@ -20,6 +20,7 @@ export default function Chat() {
   const [newMessageText,setnewMessageText]=useState('');
   const [messages,setMessages]= useState([]);
   const divUnderMessages =useRef();
+  const [allPeople,setAllPeople]=useState({});
 
 
   function connectToWs(){
@@ -36,6 +37,12 @@ export default function Chat() {
 
   useEffect(() => {
     connectToWs();
+  },[]);
+
+  useEffect(()=>{
+    axios.get('/ShowAllPeople').then(res =>{
+      setAllPeople(res.data);
+    });
   },[]);
   function showOnlinePeople(peopleArray){
     const people ={};
@@ -58,6 +65,7 @@ export default function Chat() {
       //console.log("Message came="+messageData.text);
       console.log('Hoo');
       setMessages(prev => ([...prev,{...messageData}]));
+      // this.forceUpdate();
       console.log('Here is the messageData snedeer=='+{...messageData}._id);
     }
     console.log('gone');
@@ -88,7 +96,8 @@ export default function Chat() {
     _id:Date.now(),
   }]));
     console.log("Message has been sent by form");
-    
+    // location.reload();
+    this.forceUpdate();
   }
 
   useEffect(() => {
@@ -290,6 +299,21 @@ export default function Chat() {
       )}
       <div className="bg-white w-1/3">
         <Logo />
+        <div
+          onClick={() => selectContact("653546af0562f26076aebdbd")}
+          className={
+            "border-b border-gray-100  flex item-center gap-2 cursor-pointer " +
+            ("653546af0562f26076aebdbd" === selectedUserId ? "bg-blue-50" : "")
+          }
+        >
+          {"653546af0562f26076aebdbd" === selectedUserId && (
+            <div className="w-1 bg-blue-500 h-12 rounded-r-md"></div>
+          )}
+          <div className="flex gap-2 py-2 pl-4 items-center">
+            <Avatar username="Global" userId="653546af0562f26076aebdbd" />
+            <span className="text-gray-800">Global Group</span>
+          </div>
+        </div>
         {Object.keys(onlinePeopleExclOurUser).map((userId) => (
           <div
             key={userId}
@@ -320,7 +344,9 @@ export default function Chat() {
           )}
           {!!selectedUserId && (
             <div className="z-1 relative h-full pb-4">
-            <div className="text-center "><BackGroundImage/></div>
+              <div className="text-center ">
+                <BackGroundImage />
+              </div>
               <div className="z-1 overflow-y-scroll absolute inset-0">
                 {messagesWithoutDupes.map((message) => (
                   <div
@@ -339,6 +365,11 @@ export default function Chat() {
                       }
                     >
                       {message.text}
+                      {message.recipient === "653546af0562f26076aebdbd" && 
+                      <div className="font-bold">
+                        By {allPeople[message.sender]}
+                      </div>
+                      }
                     </div>
                   </div>
                 ))}

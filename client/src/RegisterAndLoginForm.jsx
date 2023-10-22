@@ -55,7 +55,7 @@ export default function RegisterAndLoginForm() {
           height={400}
           width={400}
         />
-        <form className="w-64 mx-auto mb-12 bg-white p-6 rounded-lg shadow-md border-4 border-blue-400">
+        <form className="w-64 mx-auto mb-12 bg-white p-6 rounded-lg shadow-md border-4 border-blue-400" onSubmit={handleSubmit}>
           <h2 className="text-2xl text-center font-bold mb-6">
             {isLoginOrRegister === "register" ? "Register" : "Login"}
             <Lottie
