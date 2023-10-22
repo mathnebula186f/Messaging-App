@@ -2,7 +2,7 @@ const express = require ('express');
 const mongoose= require ('mongoose');
 const dotenv=require("dotenv");
 const User=require("./models/User");
-const jwt= require("jsonwebtoken");
+const jwt= require("jsonwebtoken"); 
 const cors=require("cors");
 const bcrypt= require('bcryptjs');
 const cookieParser= require("cookie-parser");
@@ -56,7 +56,7 @@ app.get('/messages/:userId',async (req,res)=>{
 
 
 app.get("/profile", (req,res) =>{
-    const token=req.cookies?.token;
+    const token=req.cookies?.token; 
     //console.log("token"+token);
     if(token){
         jwt.verify(token, jwtSecret, {}, (err, userData) => {

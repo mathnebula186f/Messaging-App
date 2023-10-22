@@ -4,8 +4,12 @@ export default {
     "./src/*.jsx"
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+      montserrat: ['Montserrat', 'sans'],
+    },
   },
   plugins: [],
+}
 }
 

@@ -10,6 +10,7 @@ import {Navigate, useNavigate} from 'react-router-dom';
 import { useSocket } from "./SocketProvider";
 import peer from "./peer";
 import ReactPlayer from 'react-player';
+import BackGroundImage from "./BackGroundImage";
 
 export default function Chat() {
   const[ws,setWs]=useState(null);
@@ -250,7 +251,7 @@ export default function Chat() {
 
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen font-montserrat">
       {RoomPageOpened && (
         <div className="z-100">
           <h1>Room Page</h1>
@@ -319,6 +320,7 @@ export default function Chat() {
           )}
           {!!selectedUserId && (
             <div className="z-1 relative h-full pb-4">
+            <div className="text-center "><BackGroundImage/></div>
               <div className="z-1 overflow-y-scroll absolute inset-0">
                 {messagesWithoutDupes.map((message) => (
                   <div

@@ -4,7 +4,7 @@ import { UserContextProvider } from "./UserContext";
 
 //console.log("hi2");
 function App() {
-  axios.defaults.baseURL = "https://server1-zkd5.onrender.com";
+  axios.defaults.baseURL="http://localhost:4000";
   axios.defaults.withCredentials=true;
   //console.log("hey")
   return (
