@@ -47,6 +47,7 @@ export default function Chat() {
   function showOnlinePeople(peopleArray){
     const people ={};
     peopleArray.forEach(({userId,username}) =>{
+        console.log("person=",username);
         people[userId]=username;
     });
     //console.log("Here are ll the people" +people);
@@ -54,21 +55,21 @@ export default function Chat() {
   }
   function handleMessage(ev){
     const messageData=JSON.parse(ev.data);
-    console.log("Here is the messageData===="+messageData.text);
+    //console.log("Here is the messageData===="+messageData.text);
     //console.log("Im here");
-    console.log("hiiii==="+{ev,messageData});
+    //console.log("hiiii==="+{ev,messageData});
     if('online' in messageData){
         showOnlinePeople(messageData.online);
     }
     
     else if('text' in messageData){
       //console.log("Message came="+messageData.text);
-      console.log('Hoo');
+      //console.log('Hoo');
       setMessages(prev => ([...prev,{...messageData}]));
       // this.forceUpdate();
-      console.log('Here is the messageData snedeer=='+{...messageData}._id);
+      //console.log('Here is the messageData snedeer=='+{...messageData}._id);
     }
-    console.log('gone');
+    //console.log('gone');
     //console.log(ev.data);
     // ev.data.text().then(messageString =>{
     //     console.log(messageString);
@@ -95,7 +96,7 @@ export default function Chat() {
     recipient:selectedUserId,
     _id:Date.now(),
   }]));
-    console.log("Message has been sent by form");
+    //console.log("Message has been sent by form");
     // location.reload();
     this.forceUpdate();
   }
@@ -120,6 +121,8 @@ export default function Chat() {
 
   const onlinePeopleExclOurUser= {...onlinePeople};
   delete onlinePeopleExclOurUser[id];
+  //console.log("online people excluding user=",onlinePeopleExclOurUser);
+  //console.log("online people =",{...onlinePeople});
 
   const messagesWithoutDupes = _.uniqBy(messages,'_id');
   //console.log(messagesWithoutDupes);

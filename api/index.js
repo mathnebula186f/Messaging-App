@@ -100,7 +100,7 @@ app.post('/login',async(req,res)=>{
 
 app.post("/register",async (req,res) => {
     const {username,password}=req.body;
-    console.log("username=");
+    console.log("username=",username);
     const hashedPassword=bcrypt.hashSync(password,bcryptSalt);
     const createdUser= await User.create({
         username:username,
@@ -120,12 +120,12 @@ app.post("/register",async (req,res) => {
 app.get('/ShowAllPeople',async (req,res)=>{
     try {
     const allData = await User.find(); // Fetch all data from the MongoDB collection
-    console.log(allData);
+    //console.log(allData);
     const people = {};
     allData.forEach((user) => {
       people[user._id] = user.username;
     });
-    console.log("people=",people);
+    //console.log("people=",people);
     res.json(people);
   } catch (err) {
     res.status(500).json({ error: "Could not fetch data" });
@@ -139,21 +139,48 @@ wss.on('connection',(connection,req)=>{
 
 // read username and id from the cookie for this connection 
     const cookies=req.headers.cookie;
+    console.log("cookies=",cookies);
     if(cookies){
         const tokenCookieString= cookies.split(';').find( str => str.startsWith('token='));
+        console.log("tokencookeistring=",tokenCookieString);
         if(tokenCookieString){
             const token=tokenCookieString.split('=')[1];
+            console.log("token=",token);
             if(token){
                 //console.log("token="+token);
                 jwt.verify(token,jwtSecret,{},(err,userData)=>{
                     if(err) throw err;
                     //console.log(userData);
                     const {userId,username}=userData;
+                    console.log("connected user=",username); 
                     connection.userId=userId;
                     connection.username=username;
                 })
             }
         }
+        else{
+             console.log("notgone");
+             const tokenCookieString = cookies
+               .split(";")
+               .find((str) => str.startsWith(" token="));
+               if (tokenCookieString) {
+                 const token = tokenCookieString.split("=")[1];
+                 console.log("token=", token);
+                 if (token) {
+                   //console.log("token="+token);
+                   jwt.verify(token, jwtSecret, {}, (err, userData) => {
+                     if (err) throw err;
+                     //console.log(userData);
+                     const { userId, username } = userData;
+                     console.log("connected user=", username);
+                     connection.userId = userId;
+                     connection.username = username;
+                   });
+                 }
+               } 
+        
+        }
+       
         //console.log(tokenCookieString);
     }
 
@@ -162,7 +189,7 @@ wss.on('connection',(connection,req)=>{
         const messageData= JSON.parse(message.toString());
         console.log("Message Recieved ="+ messageData.text);
         const {recipient,text}=messageData;
-        if(recipient && text){
+        if(recipient && text){ 
             const messageDoc=await Message.create({
                 sender:connection.userId,
                 recipient:recipient,
@@ -175,12 +202,13 @@ wss.on('connection',(connection,req)=>{
                 _id:messageDoc._id,
             })));
         }
-    });
+    }); 
 
 
    // console.log([...wss.clients].map( c=> c.username));
 //notify everyone abput online people  (when someone connects)
     [...wss.clients].forEach( client =>{
+        console.log("Here is the client=",client.username);
         client.send(
           JSON.stringify({
             online: [...wss.clients].map((c) => ({
