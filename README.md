@@ -62,7 +62,9 @@ node index.js
 cd ../client
 npm run dev
 ```
-6.Open your web browser and visit http://localhost:3000 to use the Messaging App.
+6.Open your web browser  and visit http://localhost:3000 to use the Messaging App.
+7.To Login As Another User Visit the Same Link On Another Web Browser or in incognito Mode.
+8.In the Deployed version the users Can Login from Any device.
 
 ## Deployment
 To deploy this application to a production environment, you can use cloud platforms like AWS, Heroku, or Vercel. Be sure to configure environment variables and set up a production-ready database.
