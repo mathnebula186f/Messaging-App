@@ -28,7 +28,7 @@ const app=express();
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-  origin: process.env.CLIENT_URL, // Allow requests from this origin
+  origin:"http://172.23.5.115:5173", // Allow requests from this origin
   credentials: true, // Allow cookies to be sent with the request
 };
 
