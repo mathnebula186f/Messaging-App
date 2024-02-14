@@ -28,7 +28,7 @@ const app=express();
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-  origin: "https://messaging-app-hiwy.vercel.app/", // Allow requests from this origin
+  origin: "https://messaging-app-hiwy.vercel.app", // Allow requests from this origin
   credentials: true, // Allow cookies to be sent with the request
 };
 
