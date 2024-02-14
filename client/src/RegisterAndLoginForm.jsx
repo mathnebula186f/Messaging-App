@@ -7,6 +7,7 @@ import LoginAnimationData from "./lottie/Login.json";
 import RegisterAnimationData from "./lottie/Register.json";
 import Logo from "./Logo";
 import LogoAnimationData from "./lottie/Logo.json";
+import {toast,ToastContainer} from "react-toastify";
 
 export default function RegisterAndLoginForm() {
   const [username, setUsername] = useState("");
@@ -17,9 +18,19 @@ export default function RegisterAndLoginForm() {
   async function handleSubmit(ev) {
     ev.preventDefault();
     const url = isLoginOrRegister === "register" ? "/register" : "/login";
-    const { data } = await axios.post(url, { username, password });
-    setLoggedInUsername(username);
-    setId(data.id);
+    if(username==="" || password===""){
+      toast.error("Username and Password Cannot be empty!!!");
+      return;
+    }
+    try{
+      const { data } = await axios.post(url, { username, password });
+      setLoggedInUsername(username);
+      setId(data.id);
+    }
+    catch(error){
+      toast.error(error)
+    }
+    
   }
   const LoginAnimationdefaultOptions = {
     loop: true,
@@ -48,6 +59,7 @@ export default function RegisterAndLoginForm() {
 
   return (
     <div className="bg-blue-50">
+      <ToastContainer/>
       <Lottie options={LogoAnimationdefaultOptions} height={200} width={200} />
       <div className="bg-blue-50 h-screen flex items-center font-montserrat">
         <Lottie

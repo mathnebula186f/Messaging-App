@@ -100,19 +100,33 @@ app.post('/login',async(req,res)=>{
 
 app.post("/register",async (req,res) => {
     const {username,password}=req.body;
-    console.log("username=",username);
-    const hashedPassword=bcrypt.hashSync(password,bcryptSalt);
-    const createdUser= await User.create({
-        username:username,
-        password:hashedPassword,
-    });
+    const foundUser=await User.findOne({username});
+    if(foundUser){
+      res.status(401).json({message:"User Already Exists!!"});
+    }
+    else{
+      const hashedPassword = bcrypt.hashSync(password, bcryptSalt);
+      const createdUser = await User.create({
+        username: username,
+        password: hashedPassword,
+      });
 
-    jwt.sign({userId:createdUser._id,username},jwtSecret,{},(err,token)=>{
-        if(err) throw err;
-        res.cookie('token',token,{sameSite:'none',secure :true}).status(201).json({
-            id:createdUser._id,
-        });
-    });
+      jwt.sign(
+        { userId: createdUser._id, username },
+        jwtSecret,
+        {},
+        (err, token) => {
+          if (err) throw err;
+          res
+            .cookie("token", token, { sameSite: "none", secure: true })
+            .status(201)
+            .json({
+              id: createdUser._id,
+            });
+        }
+      );
+    }
+    
 
 });
 
@@ -153,7 +167,7 @@ wss.on('connection',(connection,req)=>{
                     //console.log(userData);
                     const {userId,username}=userData;
                     console.log("connected user=",username); 
-                    connection.userId=userId;
+                    connection.userId=userId; 
                     connection.username=username;
                 })
             }
