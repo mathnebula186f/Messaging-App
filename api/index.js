@@ -32,6 +32,8 @@ app.use(cors({
     origin:process.env.CLIENT_URL,
 
 }));
+app.options("*", cors(corsOptions));
+
 
 app.get('/test', (req,res) => {
     res.json('test ok');
