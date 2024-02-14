@@ -27,11 +27,12 @@ const bcryptSalt=bcrypt.genSaltSync(10);
 const app=express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    credentials :true,
-    origin:process.env.CLIENT_URL,
+const corsOptions = {
+  origin: process.env.CLIENT_URL, // Allow requests from this origin
+  credentials: true, // Allow cookies to be sent with the request
+};
 
-}));
+app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 
