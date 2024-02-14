@@ -10,8 +10,17 @@ const ws=require('ws');
 const Message = require ('./models/Message');
 
 dotenv.config();  
-//console.log(process.env.MONGO_URL);
-mongoose.connect(process.env.MONGO_URL);
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URL);
+    console.log(`Connected to MongoDB: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(`Error: ${error.message}`);
+    process.exit();
+  }
+};
+
+connectDB();
 const jwtSecret=process.env.JWT_SECRET;
 const bcryptSalt=bcrypt.genSaltSync(10);
 

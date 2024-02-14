@@ -4,7 +4,7 @@ import { UserContextProvider } from "./UserContext";
 
 //console.log("hi2");
 function App() {
-  axios.defaults.baseURL="http://localhost:4000";
+  axios.defaults.baseURL = "https://messaging-app-dun.vercel.app";
   axios.defaults.withCredentials=true;
   //console.log("hey")
   return (
