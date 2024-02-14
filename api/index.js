@@ -2,7 +2,7 @@ const express = require ('express');
 const mongoose= require ('mongoose');
 const dotenv=require("dotenv");
 const User=require("./models/User");
-const jwt= require("jsonwebtoken"); 
+const jwt= require("jsonwebtoken");  
 const cors=require("cors");
 const bcrypt= require('bcryptjs');
 const cookieParser= require("cookie-parser");
@@ -27,11 +27,7 @@ const bcryptSalt=bcrypt.genSaltSync(10);
 const app=express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    credentials :true,
-    origin:process.env.CLIENT_URL,
-
-}));
+app.use(cors());
 
 app.get('/test', (req,res) => {
     res.json('test ok');
@@ -46,7 +42,7 @@ async function getUserDataFromRequest(req){
             if (err) throw err;
                 resolve(userData);
           });
-        } else{
+        } else{ 
             reject('no token');
         }
     });
@@ -76,6 +72,7 @@ app.get('/messages/:userId',async (req,res)=>{
 app.get("/profile", (req,res) =>{
     const token=req.cookies?.token; 
     //console.log("token"+token);
+
     if(token){
         jwt.verify(token, jwtSecret, {}, (err, userData) => {
           if (err) throw err;
@@ -92,6 +89,7 @@ app.get("/profile", (req,res) =>{
 
 app.post('/login',async(req,res)=>{
     const {username,password}=req.body;
+    console.log("Login initiated with username=",username);
     const foundUser=await User.findOne({username});
     if(foundUser){
         const passOk=bcrypt.compareSync(password,foundUser.password);
@@ -104,6 +102,9 @@ app.post('/login',async(req,res)=>{
                   });
             });
         }
+    }
+    else{
+      res.status(401).json({message:"User does not exists!!"})
     }
 });
 
