@@ -22,6 +22,7 @@ export default function RegisterAndLoginForm() {
       toast.error("Username and Password Cannot be empty!!!");
       return;
     }
+    console.log("handleSubmit called")
     try{
       const { data } = await axios.post(url, { username, password });
       setLoggedInUsername(username);
@@ -98,7 +99,7 @@ export default function RegisterAndLoginForm() {
               placeholder="Password"
               className="w-full rounded-sm p-2 mb-4 border-2 border-blue-300 focus:outline-none focus:ring focus:ring-blue-400"
             />
-            <button className="bg-blue-500 text-white block w-full rounded-lg p-2">
+            <button className="bg-blue-500 text-white block w-full rounded-lg p-2" onClick={handleSubmit}>
               {isLoginOrRegister === "register" ? "Register" : "Login"}
             </button>
             <div className="text-center mt-6">
