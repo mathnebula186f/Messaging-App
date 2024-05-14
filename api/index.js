@@ -15,7 +15,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGO_URL);
     console.log(`Connected to MongoDB: ${conn.connection.host}`);
   } catch (error) {
-    console.log(`Error: ${error.message}`);
+    console.log(`Cant Connect to Mongo Due to Error: ${error.message}`);
     process.exit();
   }
 };
@@ -28,12 +28,14 @@ const app=express();
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-  origin: "https://messaging-app-hiwy.vercel.app", // Allow requests from this origin
+  origin: process.env.CLIENT_URL, // Allow requests from this origin
+  //origin: "https://messaging-app-hiwy.vercel.app"
   credentials: true, // Allow cookies to be sent with the request
 };
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+// app.use(cors(corsOptions));
+// app.options("*", cors(corsOptions));
+app.use(cors())
 
 
 app.get('/test', (req,res) => {
@@ -115,11 +117,13 @@ app.post('/login',async(req,res)=>{
     }
 });
 
+/*REGISTER API*/
 app.post("/register",async (req,res) => {
     const {username,password}=req.body;
     const foundUser=await User.findOne({username});
     if(foundUser){
-      res.status(401).json({message:"User Already Exists!!"});
+      console.log(`User:${username} Already Exists!!`);
+      res.status(403).json({message:"User Already Exists!!"});
     }
     else{
       const hashedPassword = bcrypt.hashSync(password, bcryptSalt);
@@ -142,9 +146,8 @@ app.post("/register",async (req,res) => {
             });
         }
       );
+      console.log( `User:${username} Registered Successfully!!`);
     }
-    
-
 });
 
 
