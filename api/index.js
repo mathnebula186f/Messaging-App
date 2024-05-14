@@ -127,9 +127,6 @@ app.post("/login", async (req, res) => {
               });
             await updateLastModified(username);
             console.log("Token while logging in =",token)
-            res
-              .status(200)
-              .json({ message: "User Logged in successfully", token: token });
           }
         );
       } else {
@@ -236,7 +233,7 @@ async function deleteOnlineUser(username) {
 app.post("/logout", async (req, res) => {
   console.log("logout route called!!");
   const { username } = req.body;
-  try {
+  try { 
     deleteOnlineUser(username);
   } catch (error) {
     console.log(error);

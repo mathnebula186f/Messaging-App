@@ -122,7 +122,7 @@ export default function Chat() {
       // location.reload();
       this.forceUpdate();
       UpdateOnlinePeople();
-      
+
     } else {
       console.log("Some Error occured while sending Message", response);
     }
@@ -157,6 +157,16 @@ export default function Chat() {
 
   const messagesWithoutDupes = _.uniqBy(messages, "_id");
   //console.log(messagesWithoutDupes);
+
+  async function handleLogout(){
+    try {
+      const repsonse =axios.post("/logout",{username});
+      logout();
+    } catch (error) {
+      console.log(error)
+    }
+    
+  }
 
   //video
 
@@ -368,7 +378,7 @@ export default function Chat() {
           className="flex gap-2 my-10 items-center justify-center bg-blue-500 border m-8 rounded-xl w-fit p-2"
           onClick={logout}
         >
-          <button className="" onClick={logout}>
+          <button className="" onClick={handleLogout}>
             Logout
           </button>
         </div>
