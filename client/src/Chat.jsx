@@ -4,68 +4,83 @@ import { useState } from "react";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import { UserContext } from "./UserContext";
-import {_} from 'lodash';
+import { _ } from "lodash";
 import axios from "axios";
-import {Navigate, useNavigate} from 'react-router-dom';
+import { Navigate, useNavigate } from "react-router-dom";
 import { useSocket } from "./SocketProvider";
 import peer from "./peer";
-import ReactPlayer from 'react-player';
+import ReactPlayer from "react-player";
 import BackGroundImage from "./BackGroundImage";
 
 export default function Chat() {
-  const[ws,setWs]=useState(null);
-  const [onlinePeople,setOnlinePeople]=useState({});
-  const [selectedUserId,setSelectedUserId]=useState(null);
-  const {username,id}=useContext(UserContext)
-  const [newMessageText,setnewMessageText]=useState('');
-  const [messages,setMessages]= useState([]);
-  const divUnderMessages =useRef();
-  const [allPeople,setAllPeople]=useState({});
+  const [ws, setWs] = useState(null);
+  const [onlinePeople, setOnlinePeople] = useState({});
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const { username, id, logout,token,setId } = useContext(UserContext);
+  const [newMessageText, setnewMessageText] = useState("");
+  const [messages, setMessages] = useState([]);
+  const divUnderMessages = useRef();
+  const [allPeople, setAllPeople] = useState({});
 
-
-  function connectToWs(){
+  function connectToWs() {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
-    ws.addEventListener("close",()=> {
-      setTimeout(()=>{
-      console.log("Disconnected?Trying to reconnect....");
-      connectToWs();
-    },1000);
+    ws.addEventListener("close", () => {
+      setTimeout(() => {
+        console.log("Disconnected?Trying to reconnect....");
+        connectToWs();
+      }, 1000);
     });
   }
 
   useEffect(() => {
-    connectToWs();
-  },[]);
+    setId(localStorage.getItem("id"))
+    // connectToWs();
+  }, []);
 
-  useEffect(()=>{
-    axios.get('/ShowAllPeople').then(res =>{
+  useEffect(() => {
+    UpdateOnlinePeople();
+  }, []);
+
+  async function UpdateOnlinePeople() {
+    console.log("Update online people called")
+    const response = await axios.post("/ShowOnlinePeople",{username});
+    console.log("response",response.data);
+    const people = {};
+    response.data.forEach(({ id, username }) => {
+      console.log("person=", username);
+      people[id] = username; 
+    });
+    console.log("Here are ll the people" +people);
+    setOnlinePeople(people);
+  }
+
+  useEffect(() => {
+    axios.get("/ShowAllPeople").then((res) => {
       setAllPeople(res.data);
     });
-  },[]);
-  function showOnlinePeople(peopleArray){
-    const people ={};
-    peopleArray.forEach(({userId,username}) =>{
-        console.log("person=",username);
-        people[userId]=username;
+  }, []);
+  function showOnlinePeople(peopleArray) {
+    const people = {};
+    peopleArray.forEach(({ userId, username }) => {
+      console.log("person=", username);
+      people[userId] = username;
     });
     //console.log("Here are ll the people" +people);
     setOnlinePeople(people);
   }
-  function handleMessage(ev){
-    const messageData=JSON.parse(ev.data);
+  function handleMessage(ev) {
+    const messageData = JSON.parse(ev.data);
     //console.log("Here is the messageData===="+messageData.text);
     //console.log("Im here");
     //console.log("hiiii==="+{ev,messageData});
-    if('online' in messageData){
-        showOnlinePeople(messageData.online);
-    }
-    
-    else if('text' in messageData){
+    if ("online" in messageData) {
+      showOnlinePeople(messageData.online);
+    } else if ("text" in messageData) {
       //console.log("Message came="+messageData.text);
       //console.log('Hoo');
-      setMessages(prev => ([...prev,{...messageData}]));
+      setMessages((prev) => [...prev, { ...messageData }]);
       // this.forceUpdate();
       //console.log('Here is the messageData snedeer=='+{...messageData}._id);
     }
@@ -76,71 +91,86 @@ export default function Chat() {
     // });
     //console.log('new Message',ev);
   }
-  function selectContact(userId){
-    //console.log("clicked user id"+ userId);
+  function selectContact(userId) {
+    console.log("clicked user id"+ userId);
+
     setSelectedUserId(userId);
   }
 
-  function sendMessage(ev){
+  async function sendMessage(ev) {
     ev.preventDefault();
-    //console.log("sending message");
-    ws.send(JSON.stringify({
-        recipient : selectedUserId,
-        text: newMessageText,
-    }));
-    console.log("Message you typed= "+newMessageText);
-    setnewMessageText('');
-    setMessages( prev => ([...prev,{
-      text :newMessageText,
-      sender:id,
-    recipient:selectedUserId,
-    _id:Date.now(),
-  }]));
-    //console.log("Message has been sent by form");
-    // location.reload();
-    this.forceUpdate();
+    console.log("sending message Called in FrontEnd");
+    console.log("send amessage sender id=",id)
+    const response = await axios.post("/sendMessage", {
+      recipient: selectedUserId,
+      text: newMessageText,
+      sender:  localStorage.getItem("id"),
+    });
+    if (response.status == 200) {
+      console.log("Message you typed= " + newMessageText);
+      setnewMessageText("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: newMessageText,
+          sender: id,
+          recipient: selectedUserId,
+          _id: Date.now(),
+        },
+      ]);
+      //console.log("Message has been sent by form");
+      // location.reload();
+      this.forceUpdate();
+      UpdateOnlinePeople();
+      
+    } else {
+      console.log("Some Error occured while sending Message", response);
+    }
+    // ws.send(JSON.stringify({
+    //     recipient : selectedUserId,
+    //     text: newMessageText,
+    // }));
   }
 
   useEffect(() => {
     const div = divUnderMessages.current;
-    if(div){
+    if (div) {
       div.scrollIntoView({ behavior: "smooth", block: "end" });
     }
-  },[messages]);
+  }, [messages]);
 
-  useEffect(() =>{
-    if(selectedUserId){
-      axios.get('/messages/'+selectedUserId).then(res =>{
+  useEffect(() => {
+    if (selectedUserId) {
+      console.log("selecgred user id=",selectedUserId)
+      axios.post("/messages/" + selectedUserId,{userId:selectedUserId,token:token}).then((res) => {
         // const {data}=res;
 
         setMessages(res.data);
       });
     }
-  },[selectedUserId]);
+  }, [selectedUserId]);
 
-
-  const onlinePeopleExclOurUser= {...onlinePeople};
+  const onlinePeopleExclOurUser = { ...onlinePeople };
   delete onlinePeopleExclOurUser[id];
   //console.log("online people excluding user=",onlinePeopleExclOurUser);
   //console.log("online people =",{...onlinePeople});
 
-  const messagesWithoutDupes = _.uniqBy(messages,'_id');
+  const messagesWithoutDupes = _.uniqBy(messages, "_id");
   //console.log(messagesWithoutDupes);
 
-
-  //video 
+  //video
 
   const socket = useSocket();
   const navigate = useNavigate();
-  const room=1;
-  const [RoomPageOpened,setRoomPageOpened]=useState(false);
+  const room = 1;
+  const [RoomPageOpened, setRoomPageOpened] = useState(false);
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
   const handleVideoClick = useCallback(
     (e) => {
       e.preventDefault();
-      console.log("The video button is clicked and username=",username);
+      console.log("The video button is clicked and username=", username);
       socket.emit("room:join", { username, room });
     },
     [username, room, socket]
@@ -261,7 +291,6 @@ export default function Chat() {
     handleNegoNeedFinal,
   ]);
 
-
   return (
     <div className="flex h-screen font-montserrat">
       {RoomPageOpened && (
@@ -335,6 +364,14 @@ export default function Chat() {
             </div>
           </div>
         ))}
+        <div
+          className="flex gap-2 my-10 items-center justify-center bg-blue-500 border m-8 rounded-xl w-fit p-2"
+          onClick={logout}
+        >
+          <button className="" onClick={logout}>
+            Logout
+          </button>
+        </div>
       </div>
       <div className="flex flex-col bg-blue-50 w-2/3 p-2">
         <div className="flex-grow">
@@ -368,11 +405,11 @@ export default function Chat() {
                       }
                     >
                       {message.text}
-                      {message.recipient === "653546af0562f26076aebdbd" && 
-                      <div className="font-bold">
-                        By {allPeople[message.sender]}
-                      </div>
-                      }
+                      {message.recipient === "653546af0562f26076aebdbd" && (
+                        <div className="font-bold">
+                          By {allPeople[message.sender]}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

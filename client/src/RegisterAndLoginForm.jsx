@@ -7,33 +7,50 @@ import LoginAnimationData from "./lottie/Login.json";
 import RegisterAnimationData from "./lottie/Register.json";
 import Logo from "./Logo";
 import LogoAnimationData from "./lottie/Logo.json";
-import {toast,ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function RegisterAndLoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoginOrRegister, setIsLoginOrRegister] = useState("register");
-  const { setUsername: setLoggedInUsername, setId } = useContext(UserContext);
+  const {
+    setUsername: setLoggedInUsername,
+    setId,
+    setToken,
+  } = useContext(UserContext);
 
   async function handleSubmit(ev) {
     ev.preventDefault();
     const url = isLoginOrRegister === "register" ? "/register" : "/login";
-    if(username==="" || password===""){
+    if (username === "" || password === "") {
       toast.error("Username and Password Cannot be empty!!!");
       return;
     }
-    console.log("handleSubmit called")
-    try{
-      const { data } = await axios.post(url, { username, password });
-      setLoggedInUsername(username);
-      setId(data.id);
-      toast.info(data.message)
-      console.log("here")
-    }
-    catch(error){
+    console.log("\nhandleSubmit logon/regsiter called-\n");
+    try {
+      const response = await axios.post(url, { username, password });
+      if (response.status === 200) {
+        const { data } = response;
+        setLoggedInUsername(username);
+        setId(data.id);
+        localStorage.setItem("username", username);
+        localStorage.setItem("id", data.id);
+        localStorage.setItem("token", data.token);
+        console.log("Data while login=",data)
+        setToken(data.token);
+        toast.info(data.message);
+        console.log("Logged in  successfully");
+      } 
+      else if(response.status===201){
+        console.log("Registered successfully")
+        alert("Registered successfullly");
+      }
+      else {
+        toast.error(response.status);
+      }
+    } catch (error) {
       toast.error(error);
     }
-    
   }
   const LoginAnimationdefaultOptions = {
     loop: true,
@@ -62,8 +79,8 @@ export default function RegisterAndLoginForm() {
 
   return (
     <>
-      <ToastContainer />
       <div className="bg-blue-50">
+        <ToastContainer />
         <Lottie
           options={LogoAnimationdefaultOptions}
           height={200}
@@ -101,7 +118,10 @@ export default function RegisterAndLoginForm() {
               placeholder="Password"
               className="w-full rounded-sm p-2 mb-4 border-2 border-blue-300 focus:outline-none focus:ring focus:ring-blue-400"
             />
-            <button className="bg-blue-500 text-white block w-full rounded-lg p-2" onClick={handleSubmit}>
+            <button
+              className="bg-blue-500 text-white block w-full rounded-lg p-2"
+              onClick={handleSubmit}
+            >
               {isLoginOrRegister === "register" ? "Register" : "Login"}
             </button>
             <div className="text-center mt-6">

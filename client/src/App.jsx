@@ -2,12 +2,12 @@ import axios from "axios";
 import Routess from "./Routess";
 import { UserContextProvider } from "./UserContext";
 
-//console.log("hi2");
+
 function App() {
   axios.defaults.baseURL = "https://messaging-app-dun.vercel.app";
   // axios.defaults.baseURL = "http://localhost:4000";
-  axios.defaults.withCredentials = true;
-  //console.log("hey")
+  axios.defaults.withCredentials =false;
+  
   return (
     <UserContextProvider>
       <Routess />

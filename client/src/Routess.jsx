@@ -1,15 +1,29 @@
-import { useContext } from "react";
+import { useContext,useEffect } from "react";
 import RegisterAndLoginForm from "./RegisterAndLoginForm";
 import { UserContext } from "./UserContext";
 import Chat from "./Chat";
 import {Routes ,Route} from 'react-router-dom';
-//console.log("hi3afs");
+
 export default function Routess() {
-    // console.log("hi35");
-    const {username,id}= useContext(UserContext);
+    const {username,id,setUsername,setId,setToken}= useContext(UserContext);
+
+    useEffect(() =>{
+        const username1=localStorage.getItem("username");
+        if(username1){
+            setUsername(username1);
+        }
+        const id1=localStorage.getItem("id");
+        if(id1){
+            setId(id);
+        }
+        const token1=localStorage.getItem("token");
+        if(token1){
+            setToken(token1);
+        }
+    },[]);
+    
     
     if(username){
-        //console.log("hehehe");
         return <Chat />; 
     }
 
@@ -17,4 +31,3 @@ export default function Routess() {
         <RegisterAndLoginForm/>
     ); 
 }
-//2:12:02

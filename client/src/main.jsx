@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { SocketProvider } from './SocketProvider.jsx';
 import App from './App.jsx';
 import './index.css';
-//console.log("hi1");
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
