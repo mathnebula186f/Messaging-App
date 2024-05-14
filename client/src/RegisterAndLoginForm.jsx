@@ -27,6 +27,8 @@ export default function RegisterAndLoginForm() {
       const { data } = await axios.post(url, { username, password });
       setLoggedInUsername(username);
       setId(data.id);
+      toast.info(data.message)
+      console.log("here")
     }
     catch(error){
       toast.error(error);

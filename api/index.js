@@ -33,9 +33,9 @@ const corsOptions = {
   credentials: true, // Allow cookies to be sent with the request
 };
 
-// app.use(cors(corsOptions));
-// app.options("*", cors(corsOptions));
-app.use(cors());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+// app.use(cors());
 
 app.get("/test", (req, res) => {
   res.json("test ok");
@@ -55,6 +55,7 @@ async function getUserDataFromRequest(req) {
     }
   });
 }
+
 app.get("/messages/:userId", async (req, res) => {
   const { userId } = req.params;
   const userData = await getUserDataFromRequest(req);
